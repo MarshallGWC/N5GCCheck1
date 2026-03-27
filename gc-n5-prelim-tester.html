@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attainmap — N5 Graphic Communication Prelim Results</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#1a7a42;--green-light:#dcf5e8;--green-mid:#2a9a55;
+  --amber:#b45309;--amber-light:#fef3c7;
+  --red:#c53030;--red-light:#fff0f0;
+  --ink:#1a1f36;--ink-mid:#4a5568;--ink-light:#8896a5;
+  --bg:#f0f4f8;--surface:#fff;--surface-2:#f7fafc;
+  --border:#e2e8f0;--border-mid:#cbd5e0;
+  --radius:10px;--radius-sm:6px;--radius-lg:16px;
+  --shadow:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg:0 10px 30px rgba(0,0,0,0.1),0 4px 8px rgba(0,0,0,0.06);
+  --font:'Plus Jakarta Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --subject:#c0392b;--subject-light:#fdecea;--subject-mid:#e74c3c;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6;}
+
+.header{background:var(--surface);border-bottom:2px solid var(--border-mid);padding:0 1.5rem;display:flex;align-items:center;gap:1rem;height:52px;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.logo{display:flex;align-items:center;gap:0.5rem;text-decoration:none;}
+.logo-text{font-size:1.1rem;font-weight:800;color:var(--subject);letter-spacing:-0.02em;}
+.header-sub{font-size:0.78rem;color:var(--ink-light);margin-left:auto;}
+
+.main{max-width:780px;margin:0 auto;padding:2rem 1.25rem;}
+
+.card{background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden;margin-bottom:1.5rem;}
+.card-header{background:var(--subject);color:white;padding:1.25rem 1.5rem;}
+.card-header h1{font-size:1.2rem;font-weight:700;margin-bottom:0.15rem;}
+.card-header p{font-size:0.78rem;opacity:0.8;}
+.card-body{padding:1.5rem;}
+
+.name-step{text-align:center;padding:2.5rem 1.5rem;}
+.name-step h2{font-size:1.4rem;font-weight:700;margin-bottom:0.5rem;}
+.name-step p{color:var(--ink-mid);margin-bottom:1.5rem;font-size:0.9rem;}
+.name-input{width:100%;max-width:320px;padding:0.75rem 1rem;border:2px solid var(--border-mid);border-radius:var(--radius);font-size:1rem;font-family:var(--font);outline:none;text-align:center;transition:border-color 0.15s;}
+.name-input:focus{border-color:var(--subject);}
+.btn-start{margin-top:1rem;padding:0.75rem 2rem;background:var(--subject);color:white;border:none;border-radius:var(--radius);font-size:0.95rem;font-weight:700;font-family:var(--font);cursor:pointer;transition:all 0.15s;}
+.btn-start:hover{background:var(--subject-mid);transform:translateY(-1px);box-shadow:var(--shadow);}
+
+.section-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);font-family:var(--mono);font-weight:600;margin-bottom:0.75rem;}
+.questions-grid{display:flex;flex-direction:column;gap:0;}
+.q-row{display:grid;grid-template-columns:80px 1fr 90px;align-items:center;gap:0.75rem;padding:0.55rem 0;border-bottom:1px solid var(--border);}
+.q-row:last-child{border-bottom:none;}
+.q-label{font-family:var(--mono);font-size:0.78rem;font-weight:600;color:var(--ink);}
+.q-spec-cell{display:flex;flex-direction:column;gap:0.1rem;min-width:0;}
+.q-spec{font-family:var(--mono);font-size:0.7rem;font-weight:600;color:var(--subject);}
+.q-spec-desc{font-size:0.72rem;color:var(--ink-mid);line-height:1.3;}
+.q-entry{display:flex;align-items:center;gap:0.4rem;justify-content:flex-end;}
+.q-input{width:52px;padding:0.3rem 0.4rem;border:1.5px solid var(--border-mid);border-radius:var(--radius-sm);font-size:0.88rem;font-family:var(--mono);font-weight:600;text-align:center;outline:none;transition:border-color 0.15s;}
+.q-input:focus{border-color:var(--subject);}
+.q-input.over{border-color:var(--red);background:var(--red-light);}
+.q-max{font-size:0.7rem;color:var(--ink-light);font-family:var(--mono);white-space:nowrap;}
+
+.progress-bar-wrap{background:var(--border);border-radius:100px;height:6px;margin:1rem 0;}
+.progress-bar-fill{height:6px;border-radius:100px;background:var(--subject);transition:width 0.3s;}
+
+.totals-row{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1rem;background:var(--surface-2);border-radius:var(--radius);margin-top:1rem;}
+.total-score{font-size:1.4rem;font-weight:800;font-family:var(--mono);color:var(--subject);}
+.total-pct{font-size:0.85rem;color:var(--ink-mid);}
+
+.btn-report{width:100%;margin-top:1.25rem;padding:0.85rem;background:var(--subject);color:white;border:none;border-radius:var(--radius);font-size:1rem;font-weight:700;font-family:var(--font);cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.btn-report:hover{background:var(--subject-mid);}
+.btn-report:disabled{background:var(--border-mid);cursor:not-allowed;}
+
+.result-banner{background:var(--subject);color:white;padding:1.5rem;display:flex;justify-content:space-between;align-items:flex-start;}
+.result-name{font-size:1.3rem;font-weight:700;margin-bottom:0.2rem;}
+.result-meta{font-size:0.78rem;opacity:0.75;}
+.result-pct{font-size:2.8rem;font-weight:300;line-height:1;font-family:var(--font);}
+.result-marks{font-size:0.72rem;opacity:0.7;text-align:right;}
+.grade-badge{display:none;}
+
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border);}
+.summary-cell{padding:1rem 1.25rem;text-align:center;border-right:1px solid var(--border);}
+.summary-cell:last-child{border-right:none;}
+.summary-num{font-size:1.8rem;font-weight:300;line-height:1;margin-bottom:0.2rem;}
+.summary-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-light);font-family:var(--mono);}
+
+.charts-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+.chart-cell{padding:1.25rem;min-width:0;}
+.chart-cell:first-child{border-right:1px solid var(--border);}
+.chart-cell canvas{max-height:220px!important;width:100%!important;}
+.chart-title{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-light);font-family:var(--mono);margin-bottom:0.75rem;}
+
+.topic-bar-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;}
+.topic-bar-label{font-size:0.72rem;color:var(--ink-mid);width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.topic-bar-track{flex:1;height:8px;background:var(--border);border-radius:100px;overflow:hidden;}
+.topic-bar-fill{height:8px;border-radius:100px;transition:width 0.6s ease;}
+.topic-bar-pct{font-size:0.7rem;font-family:var(--mono);font-weight:600;width:32px;text-align:right;flex-shrink:0;}
+
+.acc-section{border-bottom:1px solid var(--border);}
+.acc-header{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.25rem;cursor:pointer;background:white;transition:background 0.15s;user-select:none;}
+.acc-header:hover{background:var(--surface-2);}
+.acc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.acc-dot.green{background:var(--green);}
+.acc-dot.amber{background:var(--amber);}
+.acc-dot.red{background:var(--red);}
+.acc-title{flex:1;}
+.acc-title-top{display:flex;align-items:baseline;gap:0.5rem;}
+.acc-code{font-family:var(--mono);font-size:0.68rem;font-weight:600;color:var(--ink-light);}
+.acc-name{font-size:0.88rem;font-weight:600;}
+.acc-bar-row{margin-top:0.3rem;height:4px;background:var(--border);border-radius:100px;overflow:hidden;}
+.acc-bar-fill{height:4px;border-radius:100px;}
+.acc-bar-fill.green{background:var(--green);}
+.acc-bar-fill.amber{background:var(--amber);}
+.acc-bar-fill.red{background:var(--red);}
+.acc-pct{font-family:var(--mono);font-size:1rem;font-weight:700;text-align:right;flex-shrink:0;margin-right:0.5rem;}
+.acc-pct.green{color:var(--green);}
+.acc-pct.amber{color:var(--amber);}
+.acc-pct.red{color:var(--red);}
+.acc-status{font-size:0.62rem;padding:0.1rem 0.45rem;border-radius:100px;font-family:var(--mono);}
+.acc-status.green{background:var(--green-light);color:var(--green);}
+.acc-status.amber{background:var(--amber-light);color:var(--amber);}
+.acc-status.red{background:var(--red-light);color:var(--red);}
+.acc-chevron{width:14px;height:14px;stroke:var(--ink-light);fill:none;stroke-width:2.5;flex-shrink:0;transition:transform 0.2s;}
+.acc-body{display:none;}
+.acc-body.open{display:block;}
+
+.outcome-row{display:grid;grid-template-columns:1fr auto;align-items:flex-start;gap:0.75rem;padding:0.7rem 1rem 0.7rem 2.5rem;border-top:1px solid rgba(0,0,0,0.05);}
+.outcome-code{font-family:var(--mono);font-size:0.66rem;font-weight:600;color:var(--ink-light);margin-bottom:0.1rem;}
+.outcome-desc{font-size:0.8rem;color:var(--ink);}
+.outcome-score{font-family:var(--mono);font-size:0.82rem;font-weight:700;text-align:right;flex-shrink:0;}
+.outcome-frac{font-size:0.62rem;color:var(--ink-light);font-family:var(--mono);}
+
+.pp-section{padding:0.6rem 1rem 0.75rem 2.5rem;border-top:1px solid rgba(0,0,0,0.04);background:var(--surface-2);}
+.pp-label{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;}
+.pp-label-text{font-size:0.72rem;font-weight:600;color:var(--subject);}
+.pp-pills{display:flex;flex-wrap:wrap;gap:0.5rem;}
+.pp-pill{display:inline-flex;align-items:stretch;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.10);}
+.pp-pill a{display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.65rem;font-size:0.76rem;font-weight:600;font-family:var(--font);text-decoration:none;transition:all 0.15s;}
+.pp-pill a.qp{border-right:1.5px solid rgba(0,0,0,0.12);}
+.pp-pill a.ms{background:rgba(255,255,255,0.55);color:#555;}
+.pp-pill a.ms:hover{background:#f5f3ff;color:var(--subject);}
+.pp-none{font-size:0.72rem;color:var(--ink-light);font-style:italic;}
+
+.resources-footer{padding:0.85rem 1.5rem;background:var(--surface-2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;}
+.res-links{display:flex;gap:0.5rem;flex-wrap:wrap;}
+.res-link{font-size:0.72rem;color:var(--subject);text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.55rem;border:1.5px solid var(--subject);border-radius:6px;background:white;font-weight:600;transition:all 0.15s;}
+.res-link:hover{background:var(--subject-light);}
+.res-link.dim{color:var(--ink-mid);border-color:var(--border-mid);}
+.res-link.dim:hover{background:var(--surface-2);}
+
+.btn-print{padding:0.5rem 1.1rem;background:var(--green);color:white;border:none;border-radius:var(--radius);font-size:0.78rem;font-weight:700;font-family:var(--font);cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;}
+.btn-print:hover{background:var(--green-mid);}
+
+.btn-retake{width:100%;padding:0.6rem;background:white;color:var(--subject);border:1.5px solid var(--subject);border-radius:var(--radius);font-size:0.85rem;font-weight:600;font-family:var(--font);cursor:pointer;margin-top:1rem;transition:all 0.15s;}
+.btn-retake:hover{background:var(--subject-light);}
+
+@media(max-width:560px){
+  .charts-row{grid-template-columns:1fr;}
+  .chart-cell:first-child{border-right:none;border-bottom:1px solid var(--border);}
+  .result-pct{font-size:2rem;}
+  .topic-bar-label{width:90px;font-size:0.65rem;}
+}
+
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  .header,.btn-retake,.btn-report,.btn-print-wrap,
+  .acc-chevron,[onclick*="toggleAcc"],[onclick*="expandAll"],[onclick*="collapseAll"],
+  div[style*="expand"]{display:none!important;}
+  .main{padding:0!important;max-width:100%!important;}
+  body{background:white!important;font-size:9pt!important;}
+  @page{margin:1cm;size:A4;}
+  .acc-body{display:block!important;}
+  .card{box-shadow:none!important;border:1px solid #ddd!important;margin-bottom:0!important;}
+  .result-banner{padding:0.6rem 1rem!important;}
+  .result-name{font-size:11pt!important;}
+  .result-pct{font-size:18pt!important;}
+  .result-meta,.result-marks{font-size:7pt!important;}
+  .summary-cell{padding:0.4rem 0.5rem!important;}
+  .summary-num{font-size:14pt!important;}
+  .summary-label{font-size:6pt!important;}
+  .charts-row{grid-template-columns:180px 1fr!important;}
+  .chart-cell{padding:0.5rem 0.75rem!important;}
+  .chart-cell canvas{max-height:140px!important;}
+  .chart-title{font-size:6pt!important;margin-bottom:0.3rem!important;}
+  .topic-bar-row{margin-bottom:0.2rem!important;}
+  .topic-bar-label{font-size:6.5pt!important;width:100px!important;}
+  .topic-bar-track{height:5px!important;}
+  .topic-bar-fill{height:5px!important;}
+  .topic-bar-pct{font-size:6.5pt!important;}
+  #acc-instruction-bar{display:none!important;}
+  .acc-header{padding:0.35rem 0.75rem!important;}
+  .acc-name{font-size:8pt!important;}
+  .acc-code{font-size:6.5pt!important;}
+  .acc-pct{font-size:8pt!important;}
+  .acc-status{font-size:6pt!important;padding:0.05rem 0.3rem!important;}
+  .acc-bar-row{margin-top:0.15rem!important;height:3px!important;}
+  .acc-dot{width:6px!important;height:6px!important;}
+  .outcome-row{padding:0.3rem 0.5rem 0.3rem 1.5rem!important;gap:0.5rem!important;}
+  .outcome-code{font-size:6pt!important;}
+  .outcome-desc{font-size:7.5pt!important;line-height:1.2!important;}
+  .outcome-score{font-size:7.5pt!important;}
+  .pp-section{padding:0.25rem 0.5rem 0.35rem 1.5rem!important;}
+  .pp-label{margin-bottom:0.25rem!important;}
+  .pp-pills{gap:0.3rem!important;}
+  .pp-pill a{padding:0.15rem 0.4rem!important;font-size:7pt!important;}
+  .resources-footer{padding:0.5rem 0.75rem!important;}
+  .res-link{font-size:7pt!important;padding:0.1rem 0.35rem!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="10" width="24" height="22" rx="2" fill="#e2e8f0"/>
+        <rect x="5" y="10" width="24" height="22" rx="2" stroke="#cbd5e0" stroke-width="1"/>
+        <rect x="5" y="10" width="5" height="22" rx="1" fill="#cbd5e0"/>
+        <circle cx="7.5" cy="16" r="1.5" fill="white"/>
+        <circle cx="7.5" cy="21" r="1.5" fill="white"/>
+        <circle cx="7.5" cy="26" r="1.5" fill="white"/>
+        <rect x="10" y="5" width="4" height="7" rx="1.5" fill="#1a7a42"/>
+        <rect x="15" y="3" width="4" height="9" rx="1.5" fill="#1558b0"/>
+        <rect x="20" y="5" width="4" height="7" rx="1.5" fill="#b91c1c"/>
+        <rect x="25" y="7" width="4" height="5" rx="1.5" fill="#b45309"/>
+        <line x1="12" y1="17" x2="26" y2="17" stroke="#e2e8f0" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="12" y1="21" x2="26" y2="21" stroke="#e2e8f0" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="12" y1="25" x2="26" y2="25" stroke="#e2e8f0" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="12" y1="29" x2="22" y2="29" stroke="#e2e8f0" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    <span class="logo-text">Attainmap</span>
+  </div>
+  <span class="header-sub">N5 Graphic Communication · Prelim Revision</span>
+</div>
+
+<div class="main" id="app"></div>
+
+<script>
+// ── PRELIM QUESTIONS — George Watson's College N5 Graphic Communication 2026 ──
+// QUESTIONS array is empty — add prelim questions here
+const QUESTIONS = [
+  // Q1 — Mars base pods: identify correct arrangements from orthographic/pictorial views
+  { label:'Q1',          max:2,  spec:'N5GC 5.1'  }, // Identify two correct pod arrangements from orthographic views
+
+  // Q2 — 3D CAD kitchen handle: describe modelling from orthographic drawing
+  { label:'Q2',          max:4,  spec:'N5GC 6.3'  }, // Describe 3D CAD modelling of handle using correct terms and dimensions
+
+  // Q3 — Floor plan of council home
+  { label:'Q3(a)(i)',    max:1,  spec:'N5GC 3.4'  }, // Add shower symbol to bathroom floor plan
+  { label:'Q3(a)(ii)',   max:1,  spec:'N5GC 3.4'  }, // Add WC symbol to bathroom floor plan
+  { label:'Q3(a)(iii)',  max:1,  spec:'N5GC 3.4'  }, // Add wash-hand basin symbol to bathroom floor plan
+  { label:'Q3(b)',       max:1,  spec:'N5GC 3.4'  }, // State a suitable scale for a house floor plan
+  { label:'Q3(c)',       max:2,  spec:'N5GC 6.2'  }, // Describe two advantages of using a CAD library
+
+  // Q4 — Modern bandstand: isometric vs rendered 3D CAD, digital techniques
+  { label:'Q4(a)',       max:2,  spec:'N5GC 6.5'  }, // Explain two advantages of rendered 3D CAD illustration vs isometric line drawing
+  { label:'Q4(b)(i)',    max:2,  spec:'N5GC 2.2'  }, // State two digital devices to convert a manual sketch to a digital file
+  { label:'Q4(b)(ii)',   max:1,  spec:'N5GC 7.1'  }, // State DTP technique used to remove background of an image (cropping)
+  { label:'Q4(c)',       max:2,  spec:'N5GC 2.2'  }, // Describe two disadvantages of using digital techniques
+
+  // Q5 — Tourism company slide presentation / DTP
+  { label:'Q5(a)',       max:5,  spec:'N5GC 7.2'  }, // State the name of five DTP features from the thumbnail layout
+  { label:'Q5(b)',       max:2,  spec:'N5GC 9.2'  }, // Explain two environmental advantages of publishing online vs physical format
+  { label:'Q5(c)',       max:3,  spec:'N5GC 7.2'  }, // Explain three advantages to the graphic designer of using DTP software
+
+  // Q6 — Coupling: identify correct sectional views
+  { label:'Q6',          max:2,  spec:'N5GC 5.2'  }, // State view reference numbers for Section A-A and Section B-B
+
+  // Q7 — 3D CAD sports drink bottle lid
+  { label:'Q7',          max:4,  spec:'N5GC 6.3'  }, // Describe 3D CAD modelling of bottle lid using correct terms and dimensions
+
+  // Q8 — Fitness company website homepage / layout
+  { label:'Q8(a)',       max:2,  spec:'N5GC 8.1'  }, // Explain two ways designer created a modern and simple homepage
+  { label:'Q8(b)(i)',    max:2,  spec:'N5GC 8.1'  }, // Describe two ways alignment has been used in the layout
+  { label:'Q8(b)(ii)',   max:2,  spec:'N5GC 8.1'  }, // Describe two ways depth has been used in the layout
+  { label:'Q8(b)(iii)',  max:2,  spec:'N5GC 8.1'  }, // Describe two ways contrast has been used in the layout
+  { label:'Q8(c)',       max:2,  spec:'N5GC 9.1'  }, // Explain two advantages of promoting online rather than in printed media
+
+  // Q9 — Mobile app graphic icons for table lamp
+  { label:'Q9',          max:2,  spec:'N5GC 1.1'  }, // Explain two reasons why graphic icons will be used for the mobile app
+
+  // Q10 — 2D CAD logo: identify drawing tool at each stage
+  { label:'Q10(a)(i)',   max:1,  spec:'N5GC 6.1'  }, // State the single 2D CAD tool used at stage (i)
+  { label:'Q10(a)(ii)',  max:1,  spec:'N5GC 6.1'  }, // State the single 2D CAD tool used at stage (ii)
+  { label:'Q10(a)(iii)', max:1,  spec:'N5GC 6.1'  }, // State the single 2D CAD tool used at stage (iii)
+  { label:'Q10(a)(iv)',  max:1,  spec:'N5GC 6.1'  }, // State the single 2D CAD tool used at stage (iv)
+  { label:'Q10(a)(v)',   max:1,  spec:'N5GC 6.1'  }, // State the single 2D CAD tool used at stage (v)
+
+  // Q11 — Display sign CAD assembly constraints
+  { label:'Q11(a)(i)',   max:1,  spec:'N5GC 6.4'  }, // State the name of the CAD constraint used in stage 1
+  { label:'Q11(a)(ii)',  max:2,  spec:'N5GC 6.4'  }, // State the names of two other constraints used in 3D CAD modelling
+
+  // Q12 — Isometric view of Chilly's bottle
+  { label:'Q12(a)(i)',   max:1,  spec:'N5GC 5.4'  }, // State what angle X is in isometric drawing
+  { label:'Q12(a)(ii)',  max:2,  spec:'N5GC 5.4'  }, // State two other pictorial drawing types
+
+  // Q13 — Table lamp: surface development, true shape, plan
+  { label:'Q13(a)',      max:2,  spec:'N5GC 5.2'  }, // Identify where the two flaps will be on the surface development
+  { label:'Q13(b)',      max:1,  spec:'N5GC 5.1'  }, // Identify the correct true shape of X-X
+  { label:'Q13(c)',      max:1,  spec:'N5GC 5.1'  }, // Identify the correct plan view
+
+  // Q14 — 3D CAD vase (revolve)
+  { label:'Q14',         max:6,  spec:'N5GC 6.3'  }, // Describe 3D CAD modelling of vase using correct terms and dimensions
+
+  // Q15 — Bracket: identify correct pictorial view
+  { label:'Q15',         max:1,  spec:'N5GC 5.4'  }, // Identify the correct pictorial view of the bracket
+
+  // Q16 — Working drawing BS convention errors
+  { label:'Q16',         max:5,  spec:'N5GC 3.2'  }, // State the five errors in the working drawing that do not adhere to BS conventions
+
+  // Q17 — Ecology magazine layout
+  { label:'Q17(a)',      max:1,  spec:'N5GC 8.1'  }, // Describe how alignment has been used in the layout
+  { label:'Q17(b)',      max:1,  spec:'N5GC 8.1'  }, // State how the use of alignment improves the layout
+  { label:'Q17(c)',      max:1,  spec:'N5GC 8.1'  }, // Describe how unity has been used in the layout
+  { label:'Q17(d)',      max:1,  spec:'N5GC 8.1'  }, // Describe how depth has been used in the layout
+  { label:'Q17(e)',      max:2,  spec:'N5GC 8.2'  }, // Describe two reasons the designer used green and yellow colours
+];
+
+// ── SPEC — N5 Graphic Communication (Question Paper column only, from SQA course spec) ──
+const SPEC = {
+  "GC1": { label:"Graphic Types", outcomes:{
+    "N5GC 1.1":"Knowledge and understanding of the role of preliminary, production and promotional graphics in graphic communication activities",
+  }},
+  "GC2": { label:"Manual & Computer-Aided Techniques", outcomes:{
+    "N5GC 2.1":"Knowledge and understanding of the role of manual and computer-aided techniques and processes and their comparative merits when producing effective and informative graphic communications",
+    "N5GC 2.2":"Computer-aided techniques: describing processes, stages and generic commands; ranges, features and uses of graphic hardware and software; digital input and output devices; advantages and limitations of CAD; application of light source, surface texture and materials in 2D and 3D CAD illustrations",
+  }},
+  "GC3": { label:"Drawing Standards, Protocols & Conventions", outcomes:{
+    "N5GC 3.1":"Line types — outline, projection, dimension, centre, hidden detail, cutting plane and fold",
+    "N5GC 3.2":"Dimensioning — linear, chain, parallel, radial, diameter, angular, square, across flats and across corners; symbols and conventions; five BS drawing convention errors",
+    "N5GC 3.3":"Conventions for sectioning and hatching; third-angle projection system and symbol",
+    "N5GC 3.4":"Building construction drawing — location plans, site plans, floor plans, sectional views, elevations and scales; symbols for building construction (WC, shower, wash-hand basin)",
+  }},
+  "GC4": { label:"Geometric Shapes, Forms & Everyday Objects", outcomes:{
+    "N5GC 4.1":"Knowledge, understanding and skills in spatial awareness when interpreting geometric shapes and forms: common geometric forms (squares, rectangles, circles, hexagons, octagons, right prisms, pyramids, cones, cylinders); partial or single cuts; components based on geometric forms; combinations of two components",
+  }},
+  "GC5": { label:"Views & Techniques", outcomes:{
+    "N5GC 5.1":"Orthographic projection of geometric forms and everyday objects in third-angle projection; true lengths and true shapes; identifying correct views, plans and pictorial arrangements",
+    "N5GC 5.2":"Surface developments; sectional views — identifying correct section from options",
+    "N5GC 5.3":"Assembly drawings and exploded isometric views",
+    "N5GC 5.4":"Pictorial views — one- and two-point perspective, isometric (angle of axes), oblique and planometric; naming and identifying pictorial drawing types",
+  }},
+  "GC6": { label:"Computer-Aided Design (2D & 3D)", outcomes:{
+    "N5GC 6.1":"2D drawing tools — line, circle, ellipse, arc, rectangle, copy, zoom, mirror, trim, rotate, chamfer, fillet, pattern fill and scale; import and export; identifying the correct 2D CAD tool used at each stage",
+    "N5GC 6.2":"Use and function of CAD libraries — advantages of using a CAD library",
+    "N5GC 6.3":"3D modelling features — extrusion and revolve/revolved solids; 3D modelling edits: shell, subtraction, fillet and chamfer; describing how to model a component using correct dimensions and CAD terms",
+    "N5GC 6.4":"Assemblies — mate, align and centre axis constraints; naming constraints used in 3D CAD assembly",
+    "N5GC 6.5":"Techniques in producing orthographic and pictorial views using CAD; advantages of rendered 3D CAD illustration over line drawing",
+  }},
+  "GC7": { label:"Desktop Publishing", outcomes:{
+    "N5GC 7.1":"DTP knowledge and interpretation — copy/cut/paste, text box, handles, colour fill, margin, single-page format, title, extended text, cropping, text wrap, flow text along a path, serif and sans serif fonts, bleed, transparency, drop shadow, rotate, justification, paper sizing, reverse, column, gutter, caption, header and footer, line, grid, snap to grid, guidelines and snap to guidelines",
+    "N5GC 7.2":"Role of thumbnails and annotation — identifying DTP layout features from a thumbnail; advantages of DTP software for producing graphic layouts",
+  }},
+  "GC8": { label:"Layout, Colour Theory & Informational Graphics", outcomes:{
+    "N5GC 8.1":"Layout elements and principles — alignment, dominance, unity, depth, contrast, line; identifying and explaining how design principles have been applied in a given layout",
+    "N5GC 8.2":"Colour theory — warm, cool, contrast, harmony, advancing, receding, mood, tints, shades, primary, secondary and tertiary colours; explaining a designer's use of colour in a given layout",
+  }},
+  "GC9": { label:"Technology: Impact on Society & Environment", outcomes:{
+    "N5GC 9.1":"Impact of graphic communication technologies on society — touchscreen devices, the paperless office, remote working, communication crossing international boundaries, CAD supporting manufacturing and other industries, DTP in marketing and promotional activities",
+    "N5GC 9.2":"Impact on the environment — soy ink and wax ink, 3D printing, use of recycled materials; environmental advantages of digital/online publishing over physical printed media",
+  }},
+};
+
+// ── PAST PAPER BANK — N5 Graphic Communication (SQA 2022–2025) ───────────────
+const PAPER_BANK = [
+  // 2022
+  { year:'2022', ref:'Q1',          spec:'N5GC 5.1'  }, // Orthographic/pictorial matching — pods
+  { year:'2022', ref:'Q2',          spec:'N5GC 6.3'  }, // 3D CAD modelling — kitchen handle
+  { year:'2022', ref:'Q3(a)',       spec:'N5GC 3.4'  }, // Floor plan symbols — shower/WC/WHB
+  { year:'2022', ref:'Q3(b)',       spec:'N5GC 3.4'  }, // State suitable scale for floor plan
+  { year:'2022', ref:'Q3(c)',       spec:'N5GC 6.2'  }, // Advantages of CAD library
+  { year:'2022', ref:'Q4(a)',       spec:'N5GC 6.5'  }, // Advantages of rendered 3D CAD vs isometric
+  { year:'2022', ref:'Q4(b)(i)',    spec:'N5GC 2.2'  }, // Digital devices to convert manual sketch
+  { year:'2022', ref:'Q4(b)(ii)',   spec:'N5GC 7.1'  }, // DTP technique to remove background (cropping)
+  { year:'2022', ref:'Q4(c)',       spec:'N5GC 2.2'  }, // Two disadvantages of digital techniques
+  { year:'2022', ref:'Q5(a)',       spec:'N5GC 7.2'  }, // Identify DTP features from thumbnail
+  { year:'2022', ref:'Q5(b)',       spec:'N5GC 9.2'  }, // Environmental advantages of online publishing
+  { year:'2022', ref:'Q5(c)',       spec:'N5GC 7.2'  }, // Advantages of DTP software for graphic designer
+  { year:'2022', ref:'Q6',          spec:'N5GC 5.2'  }, // Identify correct sectional views A-A and B-B
+  { year:'2022', ref:'Q7',          spec:'N5GC 6.3'  }, // 3D CAD modelling — sports drink bottle lid
+  { year:'2022', ref:'Q8(a)',       spec:'N5GC 8.1'  }, // Modern/simple website layout
+  { year:'2022', ref:'Q8(b)(i)',    spec:'N5GC 8.1'  }, // Alignment in layout
+  { year:'2022', ref:'Q8(b)(ii)',   spec:'N5GC 8.1'  }, // Depth in layout
+  { year:'2022', ref:'Q8(b)(iii)',  spec:'N5GC 8.1'  }, // Contrast in layout
+  { year:'2022', ref:'Q8(c)',       spec:'N5GC 9.1'  }, // Advantages of online over printed promotion
+  { year:'2022', ref:'Q9',          spec:'N5GC 1.1'  }, // Why graphic icons used for mobile app
+  { year:'2022', ref:'Q10(a)',      spec:'N5GC 6.1'  }, // Identify 2D CAD tool at each stage
+  { year:'2022', ref:'Q11(a)(i)',   spec:'N5GC 6.4'  }, // Name CAD assembly constraint
+  { year:'2022', ref:'Q11(a)(ii)',  spec:'N5GC 6.4'  }, // Name two other 3D CAD constraints
+  { year:'2022', ref:'Q12(a)(i)',   spec:'N5GC 5.4'  }, // State isometric axis angle
+  { year:'2022', ref:'Q12(a)(ii)',  spec:'N5GC 5.4'  }, // State two other pictorial drawing types
+  { year:'2022', ref:'Q13(a)',      spec:'N5GC 5.2'  }, // Flap positions on surface development
+  { year:'2022', ref:'Q13(b)',      spec:'N5GC 5.1'  }, // Correct true shape of X-X
+  { year:'2022', ref:'Q13(c)',      spec:'N5GC 5.1'  }, // Correct plan view
+  { year:'2022', ref:'Q14',         spec:'N5GC 6.3'  }, // 3D CAD modelling — vase (revolve)
+  { year:'2022', ref:'Q15',         spec:'N5GC 5.4'  }, // Correct pictorial view of bracket
+  { year:'2022', ref:'Q16',         spec:'N5GC 3.2'  }, // Five BS drawing convention errors
+  { year:'2022', ref:'Q17(a)',      spec:'N5GC 8.1'  }, // Alignment in magazine layout
+  { year:'2022', ref:'Q17(b)',      spec:'N5GC 8.1'  }, // How alignment improves layout
+  { year:'2022', ref:'Q17(c)',      spec:'N5GC 8.1'  }, // Unity in layout
+  { year:'2022', ref:'Q17(d)',      spec:'N5GC 8.1'  }, // Depth in layout
+  { year:'2022', ref:'Q17(e)',      spec:'N5GC 8.2'  }, // Two reasons for green and yellow colours
+];
+
+// ── URL HELPERS ───────────────────────────────────────────────────────────────
+const AVAILABLE_YEARS = ['2025','2024','2023','2022'];
+
+function getPaperURL(yr) {
+  return `https://www.sqa.org.uk/pastpapers/papers/papers/${yr}/N5_Graphic-Communication_QP_${yr}.pdf`;
+}
+function getMSURL(yr) {
+  return `https://www.sqa.org.uk/pastpapers/papers/instructions/${yr}/mi_N5_Graphic-Communication_mi_${yr}.pdf`;
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let studentName = '';
+let marks = QUESTIONS.map(() => '');
+let radarChart = null;
+
+const TOTAL_MARKS = QUESTIONS.reduce((a, q) => a + q.max, 0);
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function normCode(c) { return c.replace(/\s+/g,'').toUpperCase(); }
+
+function getSpecDesc(code) {
+  for (const group of Object.values(SPEC)) {
+    for (const [k, v] of Object.entries(group.outcomes)) {
+      if (normCode(k) === normCode(code)) return v;
+    }
+  }
+  return null;
+}
+
+function getTopicData() {
+  const topics = {};
+  QUESTIONS.forEach((q, i) => {
+    const gc = normCode(q.spec);
+    if (!topics[gc]) topics[gc] = { earned:0, possible:0 };
+    const v = parseFloat(marks[i]);
+    topics[gc].earned += (isNaN(v) ? 0 : Math.min(v, q.max));
+    topics[gc].possible += q.max;
+  });
+  return topics;
+}
+
+function getGroupData() {
+  const topicData = getTopicData();
+  const groups = {};
+  for (const [gk, gd] of Object.entries(SPEC)) {
+    let earned = 0, possible = 0;
+    const outData = {};
+    for (const [oc] of Object.entries(gd.outcomes)) {
+      const nc = normCode(oc);
+      const td = topicData[nc] || { earned:0, possible:0 };
+      earned += td.earned;
+      possible += td.possible;
+      outData[oc] = td;
+    }
+    if (possible > 0) groups[gk] = { gd, earned, possible, outData };
+  }
+  return groups;
+}
+
+function colour(pct) {
+  if (pct >= 70) return 'green';
+  if (pct >= 50) return 'amber';
+  return 'red';
+}
+
+function render() {
+  const app = document.getElementById('app');
+  if (!studentName) { renderName(app); return; }
+  renderMarks(app);
+}
+
+function renderName(app) {
+  app.innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <h1>N5 Graphic Communication · Prelim</h1>
+        <p>George Watson's College · 2026</p>
+      </div>
+      <div class="name-step">
+        <h2>Enter your name to get started</h2>
+        <p>You'll enter your marks and get a personalised breakdown by spec topic.</p>
+        <input class="name-input" id="name-input" type="text" placeholder="Your name" autocomplete="off"
+          onkeydown="if(event.key==='Enter')startEntry()">
+        <br>
+        <button class="btn-start" onclick="startEntry()">Start entering marks →</button>
+      </div>
+    </div>`;
+  setTimeout(() => document.getElementById('name-input')?.focus(), 50);
+}
+
+function startEntry() {
+  const v = document.getElementById('name-input')?.value?.trim();
+  if (!v) return;
+  studentName = v;
+  render();
+}
+
+function renderMarks(app) {
+  const earned = marks.reduce((a, m, i) => {
+    const v = parseFloat(m);
+    return a + (isNaN(v) ? 0 : Math.min(v, QUESTIONS[i].max));
+  }, 0);
+  const pct = TOTAL_MARKS > 0 ? Math.round(earned / TOTAL_MARKS * 100) : 0;
+  const filled = marks.filter(m => m !== '').length;
+
+  if (QUESTIONS.length === 0) {
+    app.innerHTML = `
+      <div class="card">
+        <div class="card-header">
+          <h1>N5 Graphic Communication · Prelim</h1>
+          <p>George Watson's College · 2026 — Questions pending</p>
+        </div>
+        <div class="card-body">
+          <div style="text-align:center;padding:2rem;color:var(--ink-mid);">
+            <svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:var(--subject);fill:none;stroke-width:1.5;margin-bottom:1rem;"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <h2 style="font-size:1.1rem;margin-bottom:0.5rem;">Prelim questions not yet added</h2>
+            <p style="font-size:0.85rem;">The spec outcomes and past paper bank are ready. Add the QUESTIONS array entries and this tool will be fully functional.</p>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const rows = QUESTIONS.map((q, i) => {
+    const v = marks[i];
+    const isOver = parseFloat(v) > q.max;
+    const desc = getSpecDesc(q.spec) || '';
+    const shortDesc = desc.length > 70 ? desc.slice(0,68)+'…' : desc;
+    return `<div class="q-row">
+      <span class="q-label">${q.label}</span>
+      <div class="q-spec-cell">
+        <span class="q-spec">${q.spec}</span>
+        <span class="q-spec-desc" title="${desc}">${shortDesc}</span>
+      </div>
+      <div class="q-entry">
+        <input class="q-input${isOver?' over':''}" id="q-inp-${i}" type="number"
+          min="0" max="${q.max}" step="0.5" value="${v}"
+          oninput="updateMark(${i},this.value)"
+          onkeydown="navKey(event,${i})">
+        <span class="q-max">/ ${q.max}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <h1>N5 Graphic Communication · Prelim</h1>
+        <p>George Watson's College · 2026 — Enter your marks below</p>
+      </div>
+      <div class="card-body">
+        <div class="section-label">Your marks — ${TOTAL_MARKS} marks total</div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:${QUESTIONS.length>0?Math.round(filled/QUESTIONS.length*100):0}%"></div>
+        </div>
+        <div class="questions-grid">${rows}</div>
+        <div class="totals-row">
+          <div>
+            <div class="total-score">${earned} / ${TOTAL_MARKS}</div>
+            <div class="total-pct">${pct}% · ${filled} of ${QUESTIONS.length} questions entered</div>
+          </div>
+        </div>
+        <button class="btn-report" onclick="showReport()" ${filled===0?'disabled':''}>
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Show my topic breakdown
+        </button>
+      </div>
+    </div>`;
+  setTimeout(() => document.getElementById('q-inp-0')?.focus(), 50);
+}
+
+function navKey(event, i) {
+  if (event.key === 'Enter' || event.key === 'ArrowDown') {
+    event.preventDefault();
+    document.getElementById(`q-inp-${i+1}`)?.focus();
+  } else if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    document.getElementById(`q-inp-${i-1}`)?.focus();
+  }
+}
+
+function updateMark(i, v) {
+  marks[i] = v;
+  const inp = document.getElementById(`q-inp-${i}`);
+  if (inp) inp.classList.toggle('over', parseFloat(v) > QUESTIONS[i].max);
+  const earned = marks.reduce((a, m, j) => {
+    const n = parseFloat(m); return a + (isNaN(n)?0:Math.min(n,QUESTIONS[j].max));
+  }, 0);
+  const pct = Math.round(earned / TOTAL_MARKS * 100);
+  const filled = marks.filter(m => m !== '').length;
+  const ts = document.querySelector('.total-score');
+  const tp = document.querySelector('.total-pct');
+  const btn = document.querySelector('.btn-report');
+  const pb = document.querySelector('.progress-bar-fill');
+  if (ts) ts.textContent = `${earned} / ${TOTAL_MARKS}`;
+  if (tp) tp.textContent = `${pct}% · ${filled} of ${QUESTIONS.length} questions entered`;
+  if (btn) btn.disabled = filled === 0;
+  if (pb) pb.style.width = `${Math.round(filled/QUESTIONS.length*100)}%`;
+}
+
+function showReport() {
+  const app = document.getElementById('app');
+  const earned = marks.reduce((a, m, i) => {
+    const v = parseFloat(m); return a + (isNaN(v)?0:Math.min(v,QUESTIONS[i].max));
+  }, 0);
+  const pct = Math.round(earned / TOTAL_MARKS * 100);
+
+  const groupData = getGroupData();
+  const ranked = Object.entries(groupData)
+    .map(([gk,{gd,earned:ge,possible:gp,outData}]) => {
+      const grpPct = gp>0 ? Math.round(ge/gp*100) : 0;
+      const gc = colour(grpPct);
+      return {gk,gd,ge,gp,grpPct,gc,outData};
+    })
+    .sort((a,b) => a.grpPct - b.grpPct);
+
+  const priority = ranked.filter(r => r.gc==='red');
+  const developing = ranked.filter(r => r.gc==='amber');
+  const secure = ranked.filter(r => r.gc==='green');
+
+  const accordionHtml = ranked.map(({gk,gd,ge,gp,grpPct,gc,outData}) => {
+    const id = `acc-${gk}`;
+    const chevId = `chev-${gk}`;
+    const ppForGroup = PAPER_BANK.filter(pb => {
+      const pbc = normCode(pb.spec);
+      return Object.keys(gd.outcomes).some(oc => normCode(oc) === pbc);
+    });
+    const ppByYear = {};
+    ppForGroup.forEach(pb => { (ppByYear[pb.year]||(ppByYear[pb.year]=[])).push(pb); });
+
+    const subRows = Object.entries(gd.outcomes).map(([oc, desc]) => {
+      const td = outData[oc] || {earned:0,possible:0};
+      const opct = td.possible>0 ? Math.round(td.earned/td.possible*100) : null;
+      const scoreHtml = td.possible>0
+        ? `<div><div class="outcome-score" style="color:${opct>=70?'var(--green)':opct>=50?'var(--amber)':'var(--red)'}">${opct}%</div><div class="outcome-frac">${td.earned}/${td.possible}</div></div>`
+        : `<div class="outcome-frac" style="color:var(--ink-light)">not tested</div>`;
+
+      const ppRefs = ppForGroup.filter(pb => normCode(pb.spec)===normCode(oc));
+      const pillCol = td.possible > 0
+        ? (Math.round(td.earned/td.possible*100) >= 70 ? {border:'#1a7a42', bg:'#dcf5e8', text:'#1a7a42'}
+          : Math.round(td.earned/td.possible*100) >= 50 ? {border:'#b45309', bg:'#fef3c7', text:'#92400e'}
+          : {border:'#c53030', bg:'#fff0f0', text:'#c53030'})
+        : {border:'#94a3b8', bg:'#f8fafc', text:'#64748b'};
+      const ppHtml = ppRefs.length > 0
+        ? `<div class="pp-section">
+            <div class="pp-label"><svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:var(--subject);fill:none;stroke-width:2.5;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg><span class="pp-label-text">Past paper practice</span></div>
+            <div class="pp-pills">${Object.entries(ppByYear).filter(([yr]) => ppRefs.some(r=>r.year===yr)).map(([yr,refs])=>{
+              const yrRefs = refs.filter(r=>normCode(r.spec)===normCode(oc));
+              if(!yrRefs.length) return '';
+              return `<div class="pp-pill" style="border:1.5px solid ${pillCol.border}"><a class="qp" style="background:${pillCol.bg};color:${pillCol.text};" href="${getPaperURL(yr)}" target="_blank" rel="noopener">📄 ${yr} — ${yrRefs.map(r=>r.ref).join(', ')}</a><a class="ms" href="${getMSURL(yr)}" target="_blank" rel="noopener">✓ MI</a></div>`;
+            }).join('')}</div>
+          </div>`
+        : `<div class="pp-section"><span class="pp-none">No past paper questions matched to this outcome</span></div>`;
+
+      return `<div class="outcome-row">
+        <div>
+          <div class="outcome-code">${oc}</div>
+          <div class="outcome-desc">${desc}</div>
+        </div>
+        ${scoreHtml}
+      </div>${ppHtml}`;
+    }).join('');
+
+    return `<div class="acc-section">
+      <div class="acc-header" onclick="toggleAcc('${id}','${chevId}')">
+        <div class="acc-dot ${gc}"></div>
+        <div class="acc-title">
+          <div class="acc-title-top">
+            <span class="acc-code">${gk}</span>
+            <span class="acc-name">${gd.label}</span>
+          </div>
+          <div class="acc-bar-row"><div class="acc-bar-fill ${gc}" style="width:${grpPct}%"></div></div>
+        </div>
+        <span class="acc-pct ${gc}">${grpPct}%</span>
+        <span class="acc-status ${gc}">${gc==='green'?'Secure':gc==='amber'?'Developing':'Priority'}</span>
+        <svg id="${chevId}" class="acc-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div id="${id}" class="acc-body">${subRows}</div>
+    </div>`;
+  }).join('');
+
+  const topicBarsHtml = ranked.map(({gd,grpPct,gc}) => {
+    const col = gc==='green'?'var(--green)':gc==='amber'?'var(--amber)':'var(--red)';
+    return `<div class="topic-bar-row">
+      <span class="topic-bar-label" title="${gd.label}">${gd.label}</span>
+      <div class="topic-bar-track"><div class="topic-bar-fill" style="width:${grpPct}%;background:${col}"></div></div>
+      <span class="topic-bar-pct" style="color:${col}">${grpPct}%</span>
+    </div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="card">
+      <div class="result-banner">
+        <div>
+          <div class="result-name">${studentName}</div>
+          <div class="result-meta">N5 Graphic Communication · George Watson's Prelim 2026</div>
+        </div>
+        <div>
+          <div class="result-pct">${pct}%</div>
+          <div class="result-marks">${earned} / ${TOTAL_MARKS} marks</div>
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-cell">
+          <div class="summary-num" style="color:var(--red)">${priority.length}</div>
+          <div class="summary-label">Priority topics</div>
+        </div>
+        <div class="summary-cell">
+          <div class="summary-num" style="color:var(--amber)">${developing.length}</div>
+          <div class="summary-label">Developing</div>
+        </div>
+        <div class="summary-cell">
+          <div class="summary-num" style="color:var(--green)">${secure.length}</div>
+          <div class="summary-label">Secure</div>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-cell">
+          <div class="chart-title">Performance by topic</div>
+          <canvas id="radar-chart"></canvas>
+        </div>
+        <div class="chart-cell">
+          <div class="chart-title">Topic breakdown</div>
+          ${topicBarsHtml}
+        </div>
+      </div>
+
+      <div id="acc-instruction-bar" style="padding:0.75rem 1.25rem;background:var(--surface-2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+        <span style="font-size:0.75rem;font-weight:600;color:var(--ink-mid);">Click any topic to see spec outcomes and SQA past paper practice questions</span>
+        <div style="display:flex;gap:0.4rem;">
+          <button onclick="expandAll()" style="font-size:0.68rem;padding:0.22rem 0.6rem;border:1px solid var(--border-mid);border-radius:var(--radius-sm);background:white;cursor:pointer;font-family:var(--font);">Expand all</button>
+          <button onclick="collapseAll()" style="font-size:0.68rem;padding:0.22rem 0.6rem;border:1px solid var(--border-mid);border-radius:var(--radius-sm);background:white;cursor:pointer;font-family:var(--font);">Collapse all</button>
+        </div>
+      </div>
+
+      ${accordionHtml}
+
+      <div class="resources-footer">
+        <div>
+          <div class="section-label" style="margin-bottom:0.4rem;">SQA past papers</div>
+          <div class="res-links">
+            ${AVAILABLE_YEARS.slice(0,2).map(yr => `
+              <a class="res-link" href="${getPaperURL(yr)}" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                ${yr} QP
+              </a>
+              <a class="res-link dim" href="${getMSURL(yr)}" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M9 11l3 3L22 4"/></svg>
+                ${yr} MI
+              </a>`).join('')}
+            <a class="res-link dim" href="https://www.sqa.org.uk/pastpapers/findpastpaper.htm?subject=Graphic+Communication&level=N5" target="_blank" rel="noopener">All past papers ↗</a>
+          </div>
+        </div>
+        <div class="btn-print-wrap">
+          <button class="btn-print" onclick="window.print()">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Print / Save PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-retake" onclick="goBack()">← Edit my marks</button>
+  `;
+
+  setTimeout(() => {
+    const canvas = document.getElementById('radar-chart');
+    if (!canvas || !window.Chart) return;
+    if (radarChart) radarChart.destroy();
+    const labels = ranked.map(r => r.gd.label.split(' ').slice(0,2).join(' '));
+    const data = ranked.map(r => r.grpPct);
+    const borders = ranked.map(r => r.gc==='green'?'#1a7a42':r.gc==='amber'?'#b45309':'#c53030');
+    canvas.style.maxHeight = '220px';
+    radarChart = new Chart(canvas, {
+      type:'radar',
+      data:{ labels, datasets:[{ data, backgroundColor:'rgba(192,57,43,0.1)', borderColor:'#c0392b', pointBackgroundColor: borders, pointRadius:4, borderWidth:2 }] },
+      options:{ responsive:true, maintainAspectRatio:true, aspectRatio:1, scales:{ r:{ min:0, max:100, ticks:{ stepSize:25, font:{size:9}, color:'#8896a5' }, pointLabels:{ font:{size:9,family:"'Plus Jakarta Sans',sans-serif"}, color:'#4a5568' }, grid:{ color:'rgba(0,0,0,0.06)' }, angleLines:{ color:'rgba(0,0,0,0.08)' } } }, plugins:{ legend:{ display:false } } }
+    });
+  }, 100);
+}
+
+function toggleAcc(id, chevId) {
+  const body = document.getElementById(id);
+  const chev = document.getElementById(chevId);
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+}
+
+function expandAll() {
+  document.querySelectorAll('.acc-body').forEach(b => b.classList.add('open'));
+  document.querySelectorAll('.acc-chevron').forEach(c => c.style.transform = 'rotate(180deg)');
+}
+
+function collapseAll() {
+  document.querySelectorAll('.acc-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.acc-chevron').forEach(c => c.style.transform = '');
+}
+
+function goBack() { render(); }
+
+render();
+</script>
+</body>
+</html>
